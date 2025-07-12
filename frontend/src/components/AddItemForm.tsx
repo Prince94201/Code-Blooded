@@ -1,11 +1,16 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Package, X, Plus } from "lucide-react";
@@ -34,12 +39,12 @@ const AddItemForm = () => {
   };
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // if (images.length === 0) {
     //   toast({
     //     title: "Error",
@@ -55,21 +60,21 @@ const AddItemForm = () => {
       const itemData: CreateItemRequest = {
         title,
         description,
-        category: category as 'Men' | 'Women' | 'Kids',
-        size: size as 'S' | 'M' | 'L' | 'XL',
-        condition: condition as 'New' | 'Like New' | 'Used',
+        category: category as "Men" | "Women" | "Kids",
+        size: size as "S" | "M" | "L" | "XL",
+        condition: condition as "New" | "Like New" | "Used",
         tags,
         images,
       };
 
       await apiService.createItem(itemData);
-      
+
       toast({
         title: "Item Listed!",
         description: "Your item has been submitted and is pending approval.",
       });
-      
-      navigate('/dashboard');
+
+      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Error",
@@ -89,10 +94,14 @@ const AddItemForm = () => {
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mb-4">
               <Package size={32} className="text-white" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-800">List New Item</CardTitle>
-            <p className="text-gray-600">Share your unused clothing with the community</p>
+            <CardTitle className="text-2xl font-bold text-gray-800">
+              List New Item
+            </CardTitle>
+            <p className="text-gray-600">
+              Share your unused clothing with the community
+            </p>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -110,7 +119,10 @@ const AddItemForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-gray-700 font-medium">
+                <Label
+                  htmlFor="description"
+                  className="text-gray-700 font-medium"
+                >
                   Description
                 </Label>
                 <Textarea
@@ -169,9 +181,7 @@ const AddItemForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
-                  Tags
-                </Label>
+                <Label className="text-gray-700 font-medium">Tags</Label>
                 <div className="flex gap-2">
                   <Input
                     value={newTag}
@@ -179,7 +189,7 @@ const AddItemForm = () => {
                     placeholder="Add a tag..."
                     className="rounded-xl border-gray-200 focus:border-green-400"
                     onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         addTag();
                       }
@@ -219,7 +229,9 @@ const AddItemForm = () => {
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 transition-colors">
                   <Upload size={48} className="mx-auto text-gray-400 mb-4" />
                   <p className="text-gray-600 mb-2">Click to upload photos</p>
-                  <p className="text-sm text-gray-500">PNG, JPG up to 10MB each</p>
+                  <p className="text-sm text-gray-500">
+                    PNG, JPG up to 10MB each
+                  </p>
                   <Button type="button" variant="outline" className="mt-4">
                     Choose Files
                   </Button>

@@ -1,0 +1,214 @@
+# ReWear API - cURL Commands Guide
+# =================================
+#
+# This guide provides examples of cURL commands to interact with the ReWear API.
+# Replace {base_url} with your actual API base URL (http://localhost:5000 is used below)
+
+# -----------------------
+# 1. AUTHENTICATION
+# -----------------------
+
+# 1.1 Register a new user
+curl -X POST "http://localhost:5000/api/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "securePassword"
+  }'
+
+# 1.2 Login
+curl -X POST "http://localhost:5000/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "securePassword"
+  }'
+
+# After login, you'll receive a JWT token. Store it for use in authenticated requests.
+# TOKEN="your_jwt_token_here"
+
+# 1.3 Get current user profile
+curl -X GET "http://localhost:5000/api/auth/me" \
+  -H "Authorization: Bearer $TOKEN"
+
+
+# -----------------------
+# 2. USERS
+# -----------------------
+
+# 2.1 Get user by ID
+curl -X GET "http://localhost:5000/api/users/{user_id}"
+
+# 2.2 Get logged-in user dashboard
+curl -X GET "http://localhost:5000/api/users/me/dashboard" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 2.3 Update own profile
+curl -X PATCH "http://localhost:5000/api/users/me" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Updated",
+    "profileImageUrl": "https://example.com/profile.jpg"
+  }'
+
+
+# -----------------------
+# 3. ITEMS (LISTINGS)
+# -----------------------
+
+# 3.1 Get all available listings (with optional filters)
+# Basic
+curl -X GET "http://localhost:5000/api/items"
+
+# With filters
+curl -X GET "http://localhost:5000/api/items?category=Men&size=M&condition=Like%20New&tags=cotton,summer"
+
+# 3.2 Get details of one listing
+curl -X GET "http://localhost:5000/api/items/{item_id}"
+
+# 3.3 Create a new listing
+curl -X POST "http://localhost:5000/api/items" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Red Shirt",
+    "description": "Worn twice, good condition.",
+    "images": ["https://example.com/redshirt1.jpg"],
+    "category": "Men",
+    "size": "M",
+    "condition": "Like New",
+    "tags": ["cotton", "summer"]
+  }'
+
+# 3.4 Update a listing
+curl -X PATCH "http://localhost:5000/api/items/{item_id}" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Red Cotton Shirt",
+    "description": "Updated description. Worn twice, excellent condition."
+  }'
+
+# 3.5 Delete a listing
+curl -X DELETE "http://localhost:5000/api/items/{item_id}" \
+  -H "Authorization: Bearer $TOKEN"
+
+
+# -----------------------
+# 4. SWAPS
+# -----------------------
+
+# 4.1 Propose a swap
+curl -X POST "http://localhost:5000/api/swaps/request" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "itemOfferedId": "{your_item_id}",
+    "itemRequestedId": "{their_item_id}"
+  }'
+
+# 4.2 Accept a swap
+curl -X PATCH "http://localhost:5000/api/swaps/{swap_id}/accept" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4.3 Reject a swap
+curl -X PATCH "http://localhost:5000/api/swaps/{swap_id}/reject" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4.4 Complete a swap
+curl -X PATCH "http://localhost:5000/api/swaps/{swap_id}/complete" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4.5 View user's swap history
+curl -X GET "http://localhost:5000/api/swaps/me" \
+  -H "Authorization: Bearer $TOKEN"
+
+
+# -----------------------
+# 5. REDEMPTIONS
+# -----------------------
+
+# 5.1 Redeem an item using points
+curl -X POST "http://localhost:5000/api/redeem" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "itemId": "{item_id}"
+  }'
+
+# 5.2 View redemption history
+curl -X GET "http://localhost:5000/api/redeem/history" \
+  -H "Authorization: Bearer $TOKEN"
+
+
+# -----------------------
+# 6. ORDERS
+# -----------------------
+
+# 6.1 List all orders (swaps & redemptions)
+curl -X GET "http://localhost:5000/api/orders/me" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 6.2 Fetch details of an order
+curl -X GET "http://localhost:5000/api/orders/{order_id}" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 6.3 Cancel an order
+curl -X PATCH "http://localhost:5000/api/orders/{order_id}/cancel" \
+  -H "Authorization: Bearer $TOKEN"
+
+
+# -----------------------
+# 7. ADMIN PANEL
+# -----------------------
+
+# Note: All admin endpoints require admin privileges
+# First, login as an admin user and get the admin TOKEN
+
+# 7.1 View all listings pending approval
+curl -X GET "http://localhost:5000/api/admin/items/pending" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# 7.2 Approve an item
+curl -X PATCH "http://localhost:5000/api/admin/items/{item_id}/approve" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# 7.3 Reject an item
+curl -X PATCH "http://localhost:5000/api/admin/items/{item_id}/reject" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# 7.4 Delete an item (admin)
+curl -X DELETE "http://localhost:5000/api/admin/items/{item_id}" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# 7.5 List all users
+curl -X GET "http://localhost:5000/api/admin/users" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# 7.6 Ban/unban a user
+curl -X PATCH "http://localhost:5000/api/admin/users/{user_id}/ban" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# 7.7 Get platform stats
+curl -X GET "http://localhost:5000/api/admin/dashboard" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+
+# -----------------------
+# USAGE EXAMPLE WORKFLOW
+# -----------------------
+
+# 1. Register two users (seller and buyer)
+# 2. Login as seller and get seller token
+# 3. Create an item listing as seller
+# 4. Login as buyer and get buyer token
+# 5. Create an item listing as buyer
+# 6. Propose a swap from buyer to seller
+# 7. Login as seller and accept the swap
+# 8. Complete the swap (by either user)
+# 9. Check user dashboards to see updated points and item ownership
+
+# Note: Replace all placeholder values like {item_id}, {swap_id}, etc. with actual values.
+# Store the JWT token after login: TOKEN=$(curl ... | jq -r '.token')

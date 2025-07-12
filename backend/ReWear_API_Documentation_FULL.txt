@@ -1,0 +1,254 @@
+
+ReWear API Documentation (Full)
+===============================
+
+Overview:
+---------
+This API powers ReWear – Community Clothing Exchange.
+It includes user authentication, item listings, swap/redemption mechanics, and admin moderation tools.
+
+Base URL:
+---------
+All routes are prefixed with `/api`
+
+Authentication
+--------------
+POST /auth/register
+- Registers a new user
+
+Request:
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securePassword"
+}
+
+Response:
+{
+  "message": "User registered successfully",
+  "token": "JWT_TOKEN"
+}
+
+
+POST /auth/login
+- Authenticates user and returns JWT
+
+Request:
+{
+  "email": "john@example.com",
+  "password": "securePassword"
+}
+
+Response:
+{
+  "token": "JWT_TOKEN"
+}
+
+
+GET /auth/me
+- Returns current user's profile
+
+Headers: Authorization: Bearer JWT_TOKEN
+
+Response:
+{
+  "id": "uuid",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "profileImageUrl": "https://...",
+  "points": 45,
+  "role": "user",
+  "createdAt": "ISODate"
+}
+
+
+Users
+-----
+GET /users/:id
+- Fetch user profile by ID
+
+GET /users/me/dashboard
+- Returns logged-in user’s listings, points, swaps, purchases
+
+PATCH /users/me
+- Update own profile
+
+Request:
+{
+  "name": "New Name",
+  "profileImageUrl": "https://..."
+}
+
+
+Listings
+--------
+GET /items
+- Fetch all available listings with optional filters (category, size, condition, tags)
+
+GET /items/:id
+- Get details of one listing
+
+Response:
+{
+  "id": "uuid",
+  "title": "Red Shirt",
+  "description": "Worn twice, good condition.",
+  "images": ["https://..."],
+  "category": "Men",
+  "size": "M",
+  "condition": "Like New",
+  "tags": ["cotton", "summer"],
+  "status": "available",
+  "owner": {
+    "id": "uuid",
+    "name": "Jane"
+  }
+}
+
+POST /items
+- Create a new listing
+
+Request:
+{
+  "title": "Red Shirt",
+  "description": "Worn twice, good condition.",
+  "images": ["https://..."],
+  "category": "Men",
+  "size": "M",
+  "condition": "Like New",
+  "tags": ["cotton", "summer"]
+}
+
+
+PATCH /items/:id
+- Update listing (if owner)
+
+DELETE /items/:id
+- Delete listing
+
+
+Swaps
+-----
+POST /swaps/request
+- Propose a swap
+
+Request:
+{
+  "itemOfferedId": "uuid",
+  "itemRequestedId": "uuid"
+}
+
+PATCH /swaps/:id/accept
+PATCH /swaps/:id/reject
+PATCH /swaps/:id/complete
+
+GET /swaps/me
+- View user’s swap history
+
+
+Redemptions
+-----------
+POST /redeem
+- Redeem item using points
+
+Request:
+{
+  "itemId": "uuid"
+}
+
+Response:
+{
+  "message": "Redemption successful",
+  "pointsDeducted": 20
+}
+
+GET /redeem/history
+- View point-based redemptions
+
+
+Orders
+------
+GET /orders/me
+- List all orders made by the user (swaps & redemptions)
+
+GET /orders/:id
+- Fetch details of an order
+
+PATCH /orders/:id/cancel
+- Cancel order (if allowed)
+
+
+Admin Panel (role: admin)
+-------------------------
+GET /admin/items/pending
+- View all listings pending approval
+
+PATCH /admin/items/:id/approve
+PATCH /admin/items/:id/reject
+DELETE /admin/items/:id
+
+GET /admin/users
+PATCH /admin/users/:id/ban
+
+GET /admin/dashboard
+- Platform stats: # users, # listings, # swaps
+
+
+File Upload
+-----------
+POST /upload/image
+- Upload a file (multipart/form-data)
+
+Returns:
+{
+  "url": "https://..."
+}
+
+
+Data Models
+-----------
+User:
+{
+  "id": "uuid",
+  "name": "string",
+  "email": "string",
+  "password": "hashed string",
+  "profileImageUrl": "string",
+  "points": int,
+  "role": "user | admin",
+  "createdAt": "ISODate"
+}
+
+Item:
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "images": ["string"],
+  "category": "Men | Women | Kids",
+  "size": "S | M | L | XL",
+  "condition": "New | Like New | Used",
+  "tags": ["string"],
+  "status": "available | swapped | reserved",
+  "ownerId": "uuid"
+}
+
+Swap:
+{
+  "id": "uuid",
+  "itemOfferedId": "uuid",
+  "itemRequestedId": "uuid",
+  "initiatorId": "uuid",
+  "responderId": "uuid",
+  "status": "pending | accepted | rejected | completed"
+}
+
+Transaction:
+{
+  "id": "uuid",
+  "userId": "uuid",
+  "itemId": "uuid",
+  "pointsUsed": int,
+  "type": "earn | redeem",
+  "createdAt": "ISODate"
+}
